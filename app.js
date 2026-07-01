@@ -1,5 +1,5 @@
 // A remplacer par l'URL Railway du bot, ex: "https://applebot-production.up.railway.app/api/reserve"
-const API_URL = "https://REMPLACE-MOI.up.railway.app/api/reserve";
+const API_URL = "https://applebot-bot-production.up.railway.app/api/reserve";
 
 const tg = window.Telegram?.WebApp;
 tg?.ready();
