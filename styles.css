@@ -225,6 +225,15 @@ h2 {
   width: 0%;
 }
 
+.progress--promo .progress-label {
+  color: #ffd60a;
+  font-weight: 600;
+}
+
+.progress--promo .progress-fill {
+  background: linear-gradient(90deg, #ff9f0a, #ffd60a);
+}
+
 .card-row span:first-child {
   color: var(--text-dim);
 }

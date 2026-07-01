@@ -1,6 +1,7 @@
 const API_BASE = "https://applebot-bot-production.up.railway.app";
 const API_URL = `${API_BASE}/api/reserve`;
 const SLOTS_URL = `${API_BASE}/api/slots`;
+const PROMO_URL = `${API_BASE}/api/promo`;
 
 const tg = window.Telegram?.WebApp;
 tg?.ready();
@@ -56,10 +57,35 @@ function renderSlots(slots) {
   document.getElementById("slots-fill").style.width = `${pct}%`;
 }
 
+function renderPromo(promo) {
+  const el = document.getElementById("promo-progress");
+  if (!promo || !promo.active || !promo.total || promo.remaining <= 0) {
+    el.hidden = true;
+    return;
+  }
+  const { price, total, remaining } = promo;
+  const taken = total - remaining;
+  const pct = Math.max(0, Math.min(100, (taken / total) * 100));
+
+  el.hidden = false;
+  document.getElementById("promo-text").textContent =
+    `PROMO ${price} € — plus que ${remaining} place${remaining > 1 ? "s" : ""} a ce prix`;
+  document.getElementById("promo-fill").style.width = `${pct}%`;
+}
+
+function loadPromo() {
+  fetch(PROMO_URL)
+    .then((res) => (res.ok ? res.json() : null))
+    .then(renderPromo)
+    .catch(() => {});
+}
+
 fetch(SLOTS_URL)
   .then((res) => (res.ok ? res.json() : null))
   .then(renderSlots)
   .catch(() => {});
+
+loadPromo();
 
 const slotButtons = document.querySelectorAll("#slot-options .option");
 const btnToConfirm = document.getElementById("btn-to-confirm");
@@ -97,6 +123,7 @@ document.getElementById("btn-confirm").addEventListener("click", async () => {
 
     const data = await res.json();
     renderSlots(data.slots);
+    loadPromo();
 
     goTo("success");
     tg?.HapticFeedback?.notificationOccurred?.("success");
