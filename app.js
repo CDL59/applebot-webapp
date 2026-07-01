@@ -42,7 +42,10 @@ document.querySelectorAll("[data-back]").forEach((btn) => {
 document.getElementById("btn-reserve").addEventListener("click", () => goTo("slot"));
 
 function renderSlots(slots) {
-  if (!slots || !slots.total) return;
+  if (!slots || !slots.total) {
+    document.getElementById("slots-progress").hidden = true;
+    return;
+  }
   const { total, remaining } = slots;
   const taken = total - remaining;
   const pct = Math.max(0, Math.min(100, (taken / total) * 100));
