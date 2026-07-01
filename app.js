@@ -1,5 +1,6 @@
-// A remplacer par l'URL Railway du bot, ex: "https://applebot-production.up.railway.app/api/reserve"
-const API_URL = "https://applebot-bot-production.up.railway.app/api/reserve";
+const API_BASE = "https://applebot-bot-production.up.railway.app";
+const API_URL = `${API_BASE}/api/reserve`;
+const SLOTS_URL = `${API_BASE}/api/slots`;
 
 const tg = window.Telegram?.WebApp;
 tg?.ready();
@@ -40,6 +41,23 @@ document.querySelectorAll("[data-back]").forEach((btn) => {
 
 document.getElementById("btn-reserve").addEventListener("click", () => goTo("slot"));
 
+function renderSlots(slots) {
+  if (!slots || !slots.total) return;
+  const { total, remaining } = slots;
+  const taken = total - remaining;
+  const pct = Math.max(0, Math.min(100, (taken / total) * 100));
+
+  document.getElementById("slots-progress").hidden = false;
+  document.getElementById("slots-text").textContent =
+    remaining > 0 ? `Plus que ${remaining} places sur ${total}` : "Complet";
+  document.getElementById("slots-fill").style.width = `${pct}%`;
+}
+
+fetch(SLOTS_URL)
+  .then((res) => (res.ok ? res.json() : null))
+  .then(renderSlots)
+  .catch(() => {});
+
 const slotButtons = document.querySelectorAll("#slot-options .option");
 const btnToConfirm = document.getElementById("btn-to-confirm");
 
@@ -73,6 +91,9 @@ document.getElementById("btn-confirm").addEventListener("click", async () => {
     });
 
     if (!res.ok) throw new Error("request_failed");
+
+    const data = await res.json();
+    renderSlots(data.slots);
 
     goTo("success");
     tg?.HapticFeedback?.notificationOccurred?.("success");
